@@ -64,7 +64,18 @@ fn main() -> std::io::Result<()> {
         .replace("&lt;", "<")
         .replace("&gt;", ">");
 
-    println!("{}", output_string);
+    const RESULT_OPEN_TAG: &str = "<ProcessTextResult>";
+    const RESULT_CLOSE_TAG: &str = "</ProcessTextResult>";
+
+    let start_at = RESULT_OPEN_TAG.len()
+        + output_string
+            .find(RESULT_OPEN_TAG)
+            .expect("ProcessTextResult opening tag not found");
+    let end_at = output_string
+        .find(RESULT_CLOSE_TAG)
+        .expect("ProcessTextResult closing tag not found");
+
+    println!("{}", &output_string[start_at..end_at]);
 
     Ok(())
 }
