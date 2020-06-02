@@ -29,8 +29,8 @@ fn make_soap_request_header_and_body(text: &str) -> String {
         host = HOST,
         text = cleaned_text,
         entity_type = 4,
-        use_br = 1,
-        use_p = 1,
+        use_br = 0,
+        use_p = 0,
         max_no_br = 3
     );
 
