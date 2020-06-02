@@ -51,8 +51,6 @@ fn main() -> std::io::Result<()> {
         "\"Вы все еще кое-как верстаете в \"Ворде\"? - Тогда мы идем к вам!\"",
     );
 
-    println!("{}", r);
-
     let mut stream = TcpStream::connect(format!("{host}:80", host = HOST))?;
     stream.write_all(r.as_bytes())?;
 
