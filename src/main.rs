@@ -56,15 +56,15 @@ fn main() -> std::io::Result<()> {
     let mut stream = TcpStream::connect(format!("{host}:80", host = HOST))?;
     stream.write_all(r.as_bytes())?;
 
-    let mut output_buffer = String::new();
-    stream.read_to_string(&mut output_buffer)?;
+    let mut output_string = String::new();
+    stream.read_to_string(&mut output_string)?;
 
-    output_buffer = output_buffer
+    output_string = output_string
         .replace("&amp;", "&")
         .replace("&lt;", "<")
         .replace("&gt;", ">");
 
-    println!("{}", output_buffer);
+    println!("{}", output_string);
 
     Ok(())
 }
