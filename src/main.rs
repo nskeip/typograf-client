@@ -110,7 +110,9 @@ fn main() -> std::io::Result<()> {
         println!("{}", output_string);
     } else {
         f.seek(SeekFrom::Start(0))?;
-        f.write_all(output_string.as_bytes())?;
+        let output_bytes = output_string.as_bytes();
+        f.write_all(output_bytes)?;
+        f.set_len(output_bytes.len() as u64)?;
     }
     Ok(())
 }
