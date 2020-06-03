@@ -1,3 +1,4 @@
+use std::fs;
 use std::io::Read;
 use std::io::Write;
 use std::net::TcpStream;
@@ -94,8 +95,8 @@ fn talk_to_webservice(text: &str) -> std::io::Result<String> {
 
 fn main() -> std::io::Result<()> {
     let opt = Opt::from_args();
-    let output_string =
-        talk_to_webservice("\"Вы все еще кое-как верстаете в \"Ворде\"? - Тогда мы идем к вам!\"")?;
+    let file_contents = fs::read_to_string(opt.input)?;
+    let output_string = talk_to_webservice(&file_contents)?;
     println!("{}", output_string);
     Ok(())
 }
