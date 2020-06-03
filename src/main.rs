@@ -1,6 +1,23 @@
 use std::io::Read;
 use std::io::Write;
 use std::net::TcpStream;
+use std::path::PathBuf;
+use structopt::StructOpt;
+
+#[derive(Debug, StructOpt)]
+#[structopt(
+    name = "typograf-client",
+    about = "Yet another Artemy Lebedev Studio Typograf console client"
+)]
+struct Opt {
+    /// Input file
+    #[structopt(parse(from_os_str))]
+    input: PathBuf,
+
+    /// Edit the file inplace
+    #[structopt(short, long)]
+    inplace: bool,
+}
 
 const HOST: &str = "typograf.artlebedev.ru";
 
@@ -46,10 +63,8 @@ fn make_soap_request_header_and_body(text: &str) -> String {
     )
 }
 
-fn main() -> std::io::Result<()> {
-    let r = make_soap_request_header_and_body(
-        "\"Вы все еще кое-как верстаете в \"Ворде\"? - Тогда мы идем к вам!\"",
-    );
+fn talk_to_webservice(text: &str) -> std::io::Result<String> {
+    let r = make_soap_request_header_and_body(text);
 
     let mut stream = TcpStream::connect(format!("{host}:80", host = HOST))?;
     stream.write_all(r.as_bytes())?;
@@ -73,7 +88,14 @@ fn main() -> std::io::Result<()> {
         .find(RESULT_CLOSE_TAG)
         .expect("ProcessTextResult closing tag not found");
 
-    println!("{}", &output_string[start_at..end_at]);
+    // TODO: use drain with outut_string and try to avoid additional allocation
+    Ok(String::from(&output_string[start_at..end_at]))
+}
 
+fn main() -> std::io::Result<()> {
+    let opt = Opt::from_args();
+    let output_string =
+        talk_to_webservice("\"Вы все еще кое-как верстаете в \"Ворде\"? - Тогда мы идем к вам!\"")?;
+    println!("{}", output_string);
     Ok(())
 }
