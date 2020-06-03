@@ -1,6 +1,6 @@
-use std::fs;
 use std::io::Read;
 use std::io::Write;
+use std::io::{Seek, SeekFrom};
 use std::net::TcpStream;
 use std::path::PathBuf;
 use structopt::StructOpt;
@@ -95,8 +95,22 @@ fn talk_to_webservice(text: &str) -> std::io::Result<String> {
 
 fn main() -> std::io::Result<()> {
     let opt = Opt::from_args();
-    let file_contents = fs::read_to_string(opt.input)?;
+
+    let mut f = std::fs::OpenOptions::new()
+        .create(true)
+        .write(true)
+        .read(true)
+        .open(opt.input)?;
+
+    let mut file_contents = String::new();
+    f.read_to_string(&mut file_contents)?;
+
     let output_string = talk_to_webservice(&file_contents)?;
-    println!("{}", output_string);
+    if !opt.inplace {
+        println!("{}", output_string);
+    } else {
+        f.seek(SeekFrom::Start(0))?;
+        f.write_all(output_string.as_bytes())?;
+    }
     Ok(())
 }
