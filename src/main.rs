@@ -93,6 +93,49 @@ fn talk_to_webservice(text: &str) -> std::io::Result<String> {
     Ok(String::from(&output_string[start_at..end_at]))
 }
 
+fn find_nth_starting_from(haystack: &str, needle: &str, n: usize, offset: usize) -> Option<usize> {
+    match haystack[offset..].find(needle) {
+        Some(i) => {
+            if n == 1 {
+                Some(offset + i)
+            } else {
+                find_nth_starting_from(haystack, needle, n - 1, offset + i + needle.len())
+            }
+        }
+        None => None,
+    }
+}
+
+fn find_nth(haystack: &str, needle: &str, n: usize) -> Option<usize> {
+    find_nth_starting_from(haystack, needle, n, 0)
+}
+
+#[cfg(test)]
+#[test]
+fn find_nth_simple_case() {
+    assert_eq!(Some(8), find_nth("foo bar baz", "baz", 1 as usize));
+    assert_eq!(None, find_nth("foo bar baz", "baz", 2 as usize));
+}
+
+#[cfg(test)]
+#[test]
+fn find_nth_should_find_nothing_when_n_is_more_than_number_of_needles() {
+    assert_eq!(
+        None,
+        find_nth("foobarbaz", "some-non-existing-needle", 1 as usize)
+    );
+}
+
+#[cfg(test)]
+#[test]
+fn find_nth_should_find_a_needle_if_n_is_less_or_eq_than_number_of_needles() {
+    assert_eq!(Some(0), find_nth("simple search", "s", 1 as usize));
+    assert_eq!(Some(7), find_nth("simple search", "s", 2 as usize));
+    assert_eq!(Some(12), find_nth("foo bar BAZ BAZ BAZ", "BAZ", 2 as usize));
+    assert_eq!(Some(16), find_nth("foo bar BAZ BAZ BAZ", "BAZ", 3 as usize));
+    assert_eq!(None, find_nth("foo bar BAZ BAZ BAZ", "BAZ", 4 as usize));
+}
+
 fn main() -> std::io::Result<()> {
     let opt = Opt::from_args();
 
