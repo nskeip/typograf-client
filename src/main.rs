@@ -18,6 +18,10 @@ struct Opt {
     /// Edit the file inplace
     #[structopt(short, long)]
     inplace: bool,
+
+    /// Skip mront matter header
+    #[structopt(short, long)]
+    skip_front_matter: bool,
 }
 
 const HOST: &str = "typograf.artlebedev.ru";
@@ -147,12 +151,22 @@ fn main() -> std::io::Result<()> {
 
     let mut file_contents = String::new();
     f.read_to_string(&mut file_contents)?;
+    let file_contents_offset = {
+        if !opt.skip_front_matter {
+            0
+        } else {
+            match find_nth(&file_contents, "+++", 2) {
+                None => 0,
+                Some(i) => i,
+            }
+        }
+    };
 
-    let output_string = talk_to_webservice(&file_contents)?;
+    let output_string = talk_to_webservice(&file_contents[file_contents_offset..])?;
     if !opt.inplace {
         println!("{}", output_string);
     } else {
-        f.seek(SeekFrom::Start(0))?;
+        f.seek(SeekFrom::Start(file_contents_offset as u64))?;
         let output_bytes = output_string.as_bytes();
         f.write_all(output_bytes)?;
         f.set_len(output_bytes.len() as u64)?;
