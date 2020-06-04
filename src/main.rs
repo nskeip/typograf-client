@@ -18,6 +18,10 @@ struct Opt {
     /// Edit the file inplace
     #[structopt(short, long)]
     inplace: bool,
+
+    /// Skip mront matter header
+    #[structopt(short, long)]
+    skip_front_matter: bool,
 }
 
 const HOST: &str = "typograf.artlebedev.ru";
@@ -93,6 +97,49 @@ fn talk_to_webservice(text: &str) -> std::io::Result<String> {
     Ok(String::from(&output_string[start_at..end_at]))
 }
 
+fn find_nth_starting_from(haystack: &str, needle: &str, n: usize, offset: usize) -> Option<usize> {
+    match haystack[offset..].find(needle) {
+        Some(i) => {
+            if n == 1 {
+                Some(offset + i)
+            } else {
+                find_nth_starting_from(haystack, needle, n - 1, offset + i + needle.len())
+            }
+        }
+        None => None,
+    }
+}
+
+fn find_nth(haystack: &str, needle: &str, n: usize) -> Option<usize> {
+    find_nth_starting_from(haystack, needle, n, 0)
+}
+
+#[cfg(test)]
+#[test]
+fn find_nth_simple_case() {
+    assert_eq!(Some(8), find_nth("foo bar baz", "baz", 1 as usize));
+    assert_eq!(None, find_nth("foo bar baz", "baz", 2 as usize));
+}
+
+#[cfg(test)]
+#[test]
+fn find_nth_should_find_nothing_when_n_is_more_than_number_of_needles() {
+    assert_eq!(
+        None,
+        find_nth("foobarbaz", "some-non-existing-needle", 1 as usize)
+    );
+}
+
+#[cfg(test)]
+#[test]
+fn find_nth_should_find_a_needle_if_n_is_less_or_eq_than_number_of_needles() {
+    assert_eq!(Some(0), find_nth("simple search", "s", 1 as usize));
+    assert_eq!(Some(7), find_nth("simple search", "s", 2 as usize));
+    assert_eq!(Some(12), find_nth("foo bar BAZ BAZ BAZ", "BAZ", 2 as usize));
+    assert_eq!(Some(16), find_nth("foo bar BAZ BAZ BAZ", "BAZ", 3 as usize));
+    assert_eq!(None, find_nth("foo bar BAZ BAZ BAZ", "BAZ", 4 as usize));
+}
+
 fn main() -> std::io::Result<()> {
     let opt = Opt::from_args();
 
@@ -104,12 +151,22 @@ fn main() -> std::io::Result<()> {
 
     let mut file_contents = String::new();
     f.read_to_string(&mut file_contents)?;
+    let file_contents_offset = {
+        if !opt.skip_front_matter {
+            0
+        } else {
+            match find_nth(&file_contents, "+++", 2) {
+                None => 0,
+                Some(i) => i,
+            }
+        }
+    };
 
-    let output_string = talk_to_webservice(&file_contents)?;
+    let output_string = talk_to_webservice(&file_contents[file_contents_offset..])?;
     if !opt.inplace {
         println!("{}", output_string);
     } else {
-        f.seek(SeekFrom::Start(0))?;
+        f.seek(SeekFrom::Start(file_contents_offset as u64))?;
         let output_bytes = output_string.as_bytes();
         f.write_all(output_bytes)?;
         f.set_len(output_bytes.len() as u64)?;
