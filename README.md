@@ -11,7 +11,7 @@ USAGE:
 FLAGS:
     -h, --help                 Prints help information
     -i, --inplace              Edit the file inplace
-    -s, --skip-front-matter    Skip mront matter header
+    -s, --skip-front-matter    Skip front matter header
     -V, --version              Prints version information
 
 ARGS:

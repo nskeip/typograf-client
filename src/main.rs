@@ -19,7 +19,7 @@ struct Opt {
     #[structopt(short, long)]
     inplace: bool,
 
-    /// Skip mront matter header
+    /// Skip front matter header
     #[structopt(short, long)]
     skip_front_matter: bool,
 }
