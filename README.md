@@ -8,6 +8,9 @@ Yet another console client for https://www.artlebedev.ru/typograf/
 so they are not exactly the same, but should work well for Markdown and texts that are post-processed with other tools.
 
 ```
+typograf-client 0.3.0
+Yet another Artemy Lebedev Studio Typograf console client
+
 USAGE:
     typograf-client [FLAGS] [OPTIONS] <input>
 
@@ -19,11 +22,10 @@ FLAGS:
 
 OPTIONS:
         --encoding <encoding>          Input encoding [default: UTF-8]
-        --entity-type <entity-type>    *Not sure how it works, but 4 is okay*: switches xml, mixed or something
-                                       [default: 4]
+        --entity-type <entity-type>    *Have no idea how it works*: switches xml, mixed or something [default: 4]
         --max-no-br <max-no-br>        *Don't know what it is*, but default is 3 [default: 3]
-        --use-br <use-br>              Use <br /> for multiline text: 1 is "yes" [default: 1]
-        --use-p <use-p>                Use <p> for multiline text: 1 is "yes" [default: 1]
+        --use-br <use-br>              Use <br /> for multiline text [default: 0]
+        --use-p <use-p>                Use <p> for multiline text: 1 is "yes" [default: 0]
 
 ARGS:
     <input>    Input file
