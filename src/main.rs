@@ -19,6 +19,26 @@ struct Opt {
     #[structopt(short, long)]
     inplace: bool,
 
+    /// *Have no idea how it works*: switches xml, mixed or something
+    #[structopt(long, default_value = "4")]
+    entity_type: u8,
+
+    /// Use <br /> for multiline text
+    #[structopt(long, default_value = "0")]
+    use_br: u8,
+
+    /// Use <p> for multiline text: 1 is "yes"
+    #[structopt(long, default_value = "0")]
+    use_p: u8,
+
+    /// *Don't know what it is*, but default is 3
+    #[structopt(long, default_value = "3")]
+    max_no_br: u8,
+
+    /// Input encoding
+    #[structopt(long, default_value = "UTF-8")]
+    encoding: String,
+
     /// Skip front matter header
     #[structopt(short, long)]
     skip_front_matter: bool,
@@ -26,7 +46,7 @@ struct Opt {
 
 const HOST: &str = "typograf.artlebedev.ru";
 
-fn make_soap_request_header_and_body(text: &str) -> String {
+fn make_soap_request_header_and_body(text: &str, options: &Opt) -> String {
     let cleaned_text = text
         .replace("&", "&amp;")
         .replace("<", "&lt;")
@@ -47,13 +67,13 @@ fn make_soap_request_header_and_body(text: &str) -> String {
                 </ProcessText>\n\
             </soap:Body>\n\
         </soap:Envelope>",
-        encoding = "UTF-8",
+        encoding = options.encoding,
         host = HOST,
         text = cleaned_text,
-        entity_type = 4,
-        use_br = 0,
-        use_p = 0,
-        max_no_br = 3
+        entity_type = options.entity_type,
+        use_br = options.use_br,
+        use_p = options.use_p,
+        max_no_br = options.max_no_br
     );
 
     format!(
@@ -68,8 +88,8 @@ fn make_soap_request_header_and_body(text: &str) -> String {
     )
 }
 
-fn talk_to_webservice(text: &str) -> std::io::Result<String> {
-    let r = make_soap_request_header_and_body(text);
+fn talk_to_webservice(text: &str, options: &Opt) -> std::io::Result<String> {
+    let r = make_soap_request_header_and_body(text, options);
 
     let mut stream = TcpStream::connect(format!("{host}:80", host = HOST))?;
     stream.write_all(r.as_bytes())?;
@@ -147,7 +167,7 @@ fn main() -> std::io::Result<()> {
         .create(true)
         .write(true)
         .read(true)
-        .open(opt.input)?;
+        .open(&opt.input)?;
 
     let mut file_contents = String::new();
     f.read_to_string(&mut file_contents)?;
@@ -162,7 +182,7 @@ fn main() -> std::io::Result<()> {
         }
     };
 
-    let output_string = talk_to_webservice(&file_contents[file_contents_offset..])?;
+    let output_string = talk_to_webservice(&file_contents[file_contents_offset..], &opt)?;
     if !opt.inplace {
         println!("{}", output_string);
     } else {
