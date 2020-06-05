@@ -4,6 +4,9 @@ Yet another console client for https://www.artlebedev.ru/typograf/
 
 ## Usage and flags
 
+*IMPORTANT:* the default values of options (taken from API clients examples) seemed not convenient to me,
+so they are not exactly the same, but should work well for Markdown and texts that are post-processed with other tools.
+
 ```
 USAGE:
     typograf-client [FLAGS] [OPTIONS] <input>
