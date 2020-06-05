@@ -26,7 +26,7 @@ OPTIONS:
         --use-p <use-p>                Use <p> for multiline text: 1 is "yes" [default: 1]
 
 ARGS:
-    <input>    Input f
+    <input>    Input file
 ```
 
 ### `-h`
