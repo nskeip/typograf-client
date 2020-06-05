@@ -25,7 +25,7 @@ OPTIONS:
         --entity-type <entity-type>    *Have no idea how it works*: switches xml, mixed or something [default: 4]
         --max-no-br <max-no-br>        *Don't know what it is*, but default is 3 [default: 3]
         --use-br <use-br>              Use <br /> for multiline text [default: 0]
-        --use-p <use-p>                Use <p> for multiline text: 1 is "yes" [default: 0]
+        --use-p <use-p>                Use <p> for multiline text [default: 0]
 
 ARGS:
     <input>    Input file
