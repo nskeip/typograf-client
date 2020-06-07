@@ -193,7 +193,7 @@ fn main() -> std::io::Result<()> {
         f.seek(SeekFrom::Start(file_contents_offset as u64))?;
         let output_bytes = output_string.as_bytes();
         f.write_all(output_bytes)?;
-        f.set_len(output_bytes.len() as u64)?;
+        f.set_len((file_contents_offset + output_bytes.len()) as u64)?;
     }
     Ok(())
 }
