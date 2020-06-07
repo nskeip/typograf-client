@@ -184,7 +184,11 @@ fn main() -> std::io::Result<()> {
 
     let output_string = talk_to_webservice(&file_contents[file_contents_offset..], &opt)?;
     if !opt.inplace {
-        println!("{}", output_string);
+        println!(
+            "{}{}",
+            &file_contents[..file_contents_offset],
+            output_string
+        );
     } else {
         f.seek(SeekFrom::Start(file_contents_offset as u64))?;
         let output_bytes = output_string.as_bytes();
